@@ -1,0 +1,10 @@
+# Generic gitignores for JS
+.gitattributes
+.eslintrc.json
+node_modules/
+
+# stuff
+garbage/
+storage/
+
+database.sqlite
