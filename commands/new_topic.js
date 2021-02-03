@@ -1,3 +1,6 @@
+const fs = require('fs');
+let jsondata = require('../config.json')
+
 module.exports = {
     name: 'new_topic',
     description: 'Create new topic',
@@ -17,45 +20,47 @@ module.exports = {
             reason: "auto-creation",
         })
             .then(role => {
+                let perms = [
+                    {
+                        id: server.id,
+                        deny: ["SEND_MESSAGES", "VIEW_CHANNEL"]
+                    }, {
+                        id: role.id, // Given role
+                        allow: ["VIEW_CHANNEL"]
+                    }
+                ]
+                for (adminrole of jsondata["admin_roles"]) {
+                    perms.push({
+                        id: adminrole,
+                        allow: ["VIEW_CHANNEL"]
+                    })
+                }
                 channels.create(companyName, {
                     type: "category",
                     reason: "auto-creation",
-                    permissionOverwrites: [
-                        {
-                            id: server.id,
-                            deny: ["SEND_MESSAGES", "VIEW_CHANNEL"]
-                        }, {
-                            id: role.id, // Given role
-                            allow: ["VIEW_CHANNEL"]
-                        }, {
-                            id: "801473930174660638", // Executives
-                            allow: ["VIEW_CHANNEL"]
-                        }, {
-                            id: "804075448861851648", // Server Admin
-                            allow: ["VIEW_CHANNEL"]
-                        }, {
-                            id: "801473930174660639", // Admin-Support
-                            allow: ["VIEW_CHANNEL"]
-                        }, {
-                            id: "801473930174660640", // Professor, hardcoded
-                            allow: ["VIEW_CHANNEL"]
-                        }
-                    ]
+                    permissionOverwrites: perms
                 })
                     .then(category => {
+                        jsondata["admin_roles"].push(category.id)
                         channels.create(projName, {
                             type: "text",
                             reason: "auto-creation",
                             parent: category.id
                         })
-                            .then(message.reply("Created text channel called " + projName))
+                            .then(text => {
+                                jsondata["admin_roles"].push(text.id)
+                                message.reply("Created text channel called " + projName);
+                            })
                             .catch(console.error);
                         channels.create(projName, {
                             type: "voice",
                             reason: "auto-creation",
                             parent: category.id
                         })
-                            .then(message.reply("Created voice channel called " + projName))
+                            .then(voice => {
+                                jsondata["admin_roles"].push(voice.id)
+                                message.reply("Created voice channel called " + projName);
+                            })
                             .catch(console.error);
                     })
                     .catch(console.error)
@@ -63,5 +68,12 @@ module.exports = {
             })
             .catch(console.error)
             .finally(message.reply("Created role called " + projName));
+
+        // push update to file
+        let data = JSON.stringify(jsondata, null, 4);
+        fs.writeFileSync('../config.json', data, (err) => {
+            if(err) throw err;
+            console.log('data updated')
+        })
     },
 };
