@@ -1,3 +1,6 @@
+# Keys
+config.*
+
 # Generic gitignores for JS
 .gitattributes
 .eslintrc.json
