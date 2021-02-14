@@ -1,10 +1,15 @@
 const fs = require('fs');
-let jsondata = require('../config.json')
 
 module.exports = {
-    name: 'new_topic',
-    description: 'Create new topic',
+    name: 'newtopic',
+    description: 'Create new topic. Used for YWCC Industry Server',
     execute(message, args) {
+        // load json data
+        let jsondata = require('../guild_dat.json');
+        const guildid = message.guild.id;
+
+        let guildchannels = jsondata[guildid]["channels"]
+
         var companyName = args[0].toString().trim();
         var projName = args[1].toString().trim();
 
@@ -26,13 +31,13 @@ module.exports = {
                         deny: ["SEND_MESSAGES", "VIEW_CHANNEL"]
                     }, {
                         id: role.id, // Given role
-                        allow: ["VIEW_CHANNEL"]
+                        allow: ["SEND_MESSAGES", "VIEW_CHANNEL"]
                     }
                 ]
-                for (adminrole of jsondata["admin_roles"]) {
+                for (adminrole of jsondata[guildid]["admins"]) {
                     perms.push({
                         id: adminrole,
-                        allow: ["VIEW_CHANNEL"]
+                        allow: ["SEND_MESSAGES", "VIEW_CHANNEL"]
                     })
                 }
                 channels.create(companyName, {
@@ -41,25 +46,43 @@ module.exports = {
                     permissionOverwrites: perms
                 })
                     .then(category => {
-                        jsondata["admin_roles"].push(category.id)
+                        // append channel
+                        guildchannels.push(category.id)
+
                         channels.create(projName, {
                             type: "text",
                             reason: "auto-creation",
                             parent: category.id
                         })
-                            .then(text => {
-                                jsondata["admin_roles"].push(text.id)
+                            .then(textChannel => {
+                                // append channel
+                                guildchannels.push(textChannel.id)
                                 message.reply("Created text channel called " + projName);
                             })
                             .catch(console.error);
+
                         channels.create(projName, {
                             type: "voice",
                             reason: "auto-creation",
                             parent: category.id
                         })
-                            .then(voice => {
-                                jsondata["admin_roles"].push(voice.id)
-                                message.reply("Created voice channel called " + projName);
+                            .then(voiceChannel => {
+                                // append channel
+                                guildchannels.push(voiceChannel.id)
+                                console.log('after voice', guildchannels)
+                                message.reply("Created voice channel called " + projName)
+
+                                // this is the last step so we update guild channels here
+                                jsondata[guildid] = {
+                                    ...jsondata[guildid],
+                                    "channels": guildchannels
+                                }
+                                try {
+                                    fs.writeFileSync('./guild_dat.json', JSON.stringify(jsondata, null, 4), 'utf-8');
+                                    console.log('done writing')
+                                } catch (err) {
+                                    console.error(err)
+                                }
                             })
                             .catch(console.error);
                     })
@@ -68,12 +91,5 @@ module.exports = {
             })
             .catch(console.error)
             .finally(message.reply("Created role called " + projName));
-
-        // push update to file
-        let data = JSON.stringify(jsondata, null, 4);
-        fs.writeFileSync('../config.json', data, (err) => {
-            if(err) throw err;
-            console.log('data updated')
-        })
     },
 };
