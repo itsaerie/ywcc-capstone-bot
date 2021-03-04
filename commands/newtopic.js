@@ -5,7 +5,7 @@ module.exports = {
     description: 'Create new topic. Used for YWCC Industry Server',
     execute(message, args) {
         // load json data
-        let jsondata = require('../guild_dat.json');
+        let jsondata = require('../storage/guild_dat.json');
         const guildid = message.guild.id;
 
         let guildchannels = jsondata[guildid]["channels"]
@@ -78,7 +78,7 @@ module.exports = {
                                     "channels": guildchannels
                                 }
                                 try {
-                                    fs.writeFileSync('./guild_dat.json', JSON.stringify(jsondata, null, 4), 'utf-8');
+                                    fs.writeFileSync('./storage/guild_dat.json', JSON.stringify(jsondata, null, 4), 'utf-8');
                                     console.log('done writing')
                                 } catch (err) {
                                     console.error(err)

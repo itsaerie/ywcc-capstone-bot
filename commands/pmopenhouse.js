@@ -3,7 +3,7 @@ module.exports = {
     description: 'Opens house for PMs. For Industry server use only.',
     execute(message, args) {
         // load json data
-        let jsondata = require('../guild_dat.json');
+        let jsondata = require('../storage/guild_dat.json');
         const guildid = message.guild.id;
         const guildCache = message.guild.channels;
         const roleID = jsondata[guildid]['project-manager']; // Project Manager role
