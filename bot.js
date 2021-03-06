@@ -12,6 +12,13 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 };
 
+// listener imports
+const listenFiles = fs.readdirSync('./listeners').filter(file => file.endsWith('.js'));
+for (const file of listenFiles) {
+    const listener = require(`./listener/${file}`);
+    client.commands.set(listener.name, listener);
+};
+
 // ready for action
 client.once('ready', () => {
     console.log('Ready!');
