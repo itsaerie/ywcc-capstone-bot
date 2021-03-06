@@ -5,8 +5,7 @@ what do
 server bash/batch container (for autorestart)
 
 server startup shit
--guild init
--startcapstone, startrwc..?
+-startrwc..?
 
 other shit
 -move listeners out of bot.js and to listeners/
