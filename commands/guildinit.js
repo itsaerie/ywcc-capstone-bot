@@ -2,28 +2,33 @@ const fs = require('fs');
 
 module.exports = {
     name: 'guildinit',
-    description: 'Initializes guild into guild_dat',
+    description: 'Initializes guild into storage',
     execute(message, args) {
         const guildid = message.guild.id;
 
-        // load json data
-        let jsondata = require('../storage/guild_dat.json');
-        if (jsondata[guildid] === undefined) {
-            jsondata[guildid] = {
-                "student": "",
-                "projectmanager": "",
+        // make storage directory if nonexistent
+        if (!fs.existsSync('./storage')) {
+            fs.mkdirSync(dir)
+        }
+        let filepath = './storage/'+message.guild.id+'.json'
+
+        if (fs.existsSync(filePath)) {
+            message.channel.send('Guild already initialized. Skipping.')
+        } else {
+            // Build the JSON
+            bigJSON = {
+                "studentRole": "",
+                "projectManagerRole": "",
                 "admins": [],
                 "channels": []
             }
-        }
 
-        // try to overwrite
-        try {
-            fs.writeFileSync('./storage/guild_dat.json', JSON.stringify(jsondata, null, 4), 'utf-8');
-        } catch (err) {
-            console.error('error occurred')
+            // try to overwrite
+            fs.writeFile(filepath, JSON.stringify(bigJSON), function (err) {
+                if (err) throw err;
+            })
+    
+            message.channel.send('Initialized')
         }
-
-        message.channel.send('Initialized')
     },
 };

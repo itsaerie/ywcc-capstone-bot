@@ -3,13 +3,12 @@ module.exports = {
     description: 'Closes house for role',
     execute(message, args) {
 		// load json data
-        let jsondata = require('../storage/guild_dat.json');
-        const guildid = message.guild.id;
+        let jsondata = require('./storage/'+message.guild.id+'.json');
         const guildCache = message.guild.channels;
-        const roleID = jsondata[guildid]['student']; // Student
-        const pmRoleID = jsondata[guildid]['project-manager']; // Project Manager role
+        const roleID = jsondata['student']; // Student
+        const pmRoleID = jsondata['project-manager']; // Project Manager role
 
-        for (channelID of Object.values(jsondata[guildid]['channels'])) {
+        for (channelID of Object.values(jsondata['channels'])) {
             channel = guildCache.cache.get(channelID)
             if (channel === undefined) { continue };
             channel.updateOverwrite(roleID, {
