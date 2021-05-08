@@ -2,16 +2,16 @@ const fs = require('fs');
 
 module.exports = {
     name: 'startcapstone',
-    description: 'Initializes guild into guild_dat and formats the server for capstone usage',
+    description: 'Initializes guild into storage and formats the server for capstone usage',
     execute(message, args) {
-        const guildid = message.guild.id;
-
         var stdRole, pmRole, execRole;
         var cmtSponsor, cmtStudent;
 
         var server = message.guild;
         var roles = server.roles;
         var channels = server.channels;
+
+        var filepath = './storage/' + message.guild.id + '.json'
 
         // Create the all-powerful Server Admin
         roles.create({
@@ -22,6 +22,18 @@ module.exports = {
                 color: Math.floor(Math.random() * 16777215).toString(16) // random color
             }
         })
+
+        // Creating announcements category
+        channels.create("IMPORTANT", {
+            type: "category"
+        })
+            .then(category => {
+                channels.create("Announcements", {
+                    type: "text",
+                    parent: category.id
+                })
+            })
+            .catch(console.error)
 
         // Create the executives role
         //  this must occur before all other roles as the executives must
@@ -106,6 +118,21 @@ module.exports = {
                                 })
                                     .then(sponsorConfirm => {
                                         cmtSponsor = sponsorConfirm.id
+                                        // --This assumes that the guild has not been initialized in the dumb database--
+                                        let jsondata = {
+                                            "student": stdRole,
+                                            "projectmanager": pmRole,
+                                            "admin": execRole,
+                                            "commit-sponsors": cmtSponsor,
+                                            "commit-students": cmtStudent,
+                                            "override": [],
+                                            "channels": []
+                                        }
+                
+                                        // try to overwrite
+                                        fs.writeFile(filepath, JSON.stringify(jsondata, null, 4), function (err) {
+                                            if (err) throw err;
+                                        });
                                     })
                                     .catch(console.error)
                                 channels.create("Sponsor Questions", {
@@ -216,6 +243,21 @@ module.exports = {
                                 })
                                     .then(studentConfirm => {
                                         cmtStudent = studentConfirm.id
+                                        // --This assumes that the guild has not been initialized in the dumb database--
+                                        let jsondata = {
+                                            "student": stdRole,
+                                            "projectmanager": pmRole,
+                                            "admin": execRole,
+                                            "commit-sponsors": cmtSponsor,
+                                            "commit-students": cmtStudent,
+                                            "override": [],
+                                            "channels": []
+                                        }
+                
+                                        // try to overwrite
+                                        fs.writeFile(filepath, JSON.stringify(jsondata, null, 4), function (err) {
+                                            if (err) throw err;
+                                        });
                                     })
                                     .catch(console.error)
                                 channels.create("Student Voice", {
@@ -374,30 +416,24 @@ module.exports = {
                             })
                             .catch(console.error)
                     })
-                    .catch(console.error)
-            })
-            .then(uselessRoleName => {
-                // --This assumes that the guild has not been initialized in the dumb database--
-                // load json data
-                let jsondata = require('../storage/guild_dat.json');
-                if (jsondata[guildid] === undefined) {
-                    jsondata[guildid] = {
-                        "student": stdRole,
-                        "projectmanager": pmRole,
-                        "admin": execRole,
-                        "commit-sponsors": cmtSponsor,
-                        "commit-students": cmtStudent,
-                        "override": [],
-                        "channels": []
-                    }
-                }
+                    .then(ciscoLeadRole => {
+                        // --This assumes that the guild has not been initialized in the dumb database--
+                        let jsondata = {
+                            "student": stdRole,
+                            "projectmanager": pmRole,
+                            "admin": execRole,
+                            "commit-sponsors": cmtSponsor,
+                            "commit-students": cmtStudent,
+                            "override": [],
+                            "channels": []
+                        }
 
-                // try to overwrite
-                try {
-                    fs.writeFileSync('./storage/guild_dat.json', JSON.stringify(jsondata, null, 4), 'utf-8');
-                } catch (err) {
-                    console.error('error occurred')
-                }
+                        // try to overwrite
+                        fs.writeFile(filepath, JSON.stringify(jsondata, null, 4), function (err) {
+                            if (err) throw err;
+                        });
+                    })
+                    .catch(console.error)
             })
             .catch(console.error)
 
