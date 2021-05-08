@@ -4,11 +4,12 @@ module.exports = {
     name: 'newtrack',
     description: 'Create new topic, for YWCC RWC server',
     execute(message, args) {
+        let filepath = './storage/'+message.guild.id+'.json'
         // load json data
-        let jsondata = require('../storage/guild_dat.json');
+        let jsondata = require('.'+filepath);
         const guildid = message.guild.id;
 
-        let guildchannels = jsondata[guildid]["channels"]
+        let guildchannels = jsondata["channels"]
 
         var trackName = args[0].toString().trim();
 
@@ -46,14 +47,11 @@ module.exports = {
                             }, {
                                 id: coachrole.id, // Given role
                                 allow: ["SEND_MESSAGES", "VIEW_CHANNEL", "MANAGE_MESSAGES"]
+                            }, {
+                                id: jsondata["admin"],
+                                allow: ["SEND_MESSAGES", "VIEW_CHANNEL"]
                             }
                         ]
-                        for (adminrole of jsondata[guildid]["admins"]) {
-                            perms.push({
-                                id: adminrole,
-                                allow: ["SEND_MESSAGES", "VIEW_CHANNEL"]
-                            })
-                        }
 
                         channels.create(trackName, {
                             type: "text",
@@ -115,12 +113,12 @@ module.exports = {
                                         message.reply("All done!")
 
                                         // this is the last step so we update guild channels here
-                                        jsondata[guildid] = {
-                                            ...jsondata[guildid],
+                                        jsondata = {
+                                            ...jsondata,
                                             "channels": guildchannels
                                         }
                                         try {
-                                            fs.writeFileSync('./storage/guild_dat.json', JSON.stringify(jsondata, null, 4), 'utf-8');
+                                            fs.writeFileSync(filepath, JSON.stringify(jsondata, null, 4), 'utf-8');
                                             console.log('done writing')
                                         } catch (err) {
                                             console.error(err)

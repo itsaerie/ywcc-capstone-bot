@@ -4,11 +4,12 @@ module.exports = {
     name: 'newtopic',
     description: 'Create new topic. Used for YWCC Industry Server',
     execute(message, args) {
+        let filepath = './storage/'+message.guild.id+'.json'
         // load json data
-        let jsondata = require('../storage/guild_dat.json');
-        const guildid = message.guild.id;
+        let jsondata = require('.'+filepath);
+        console.log(jsondata)
 
-        let guildchannels = jsondata[guildid]["channels"]
+        let guildchannels = jsondata["channels"]
 
         var companyName = args[0].toString().trim();
         var projName = args[1].toString().trim();
@@ -32,14 +33,11 @@ module.exports = {
                     }, {
                         id: role.id, // Given role
                         allow: ["SEND_MESSAGES", "VIEW_CHANNEL"]
+                    }, {
+                        id: jsondata["admin"],
+                        allow: ["SEND_MESSAGES", "VIEW_CHANNEL"]
                     }
                 ]
-                for (adminrole of jsondata[guildid]["admins"]) {
-                    perms.push({
-                        id: adminrole,
-                        allow: ["SEND_MESSAGES", "VIEW_CHANNEL"]
-                    })
-                }
                 channels.create(companyName, {
                     type: "category",
                     reason: "auto-creation",
@@ -73,12 +71,12 @@ module.exports = {
                                 message.reply("Created voice channel called " + projName)
 
                                 // this is the last step so we update guild channels here
-                                jsondata[guildid] = {
-                                    ...jsondata[guildid],
+                                jsondata = {
+                                    ...jsondata,
                                     "channels": guildchannels
                                 }
                                 try {
-                                    fs.writeFileSync('./storage/guild_dat.json', JSON.stringify(jsondata, null, 4), 'utf-8');
+                                    fs.writeFileSync(filepath, JSON.stringify(jsondata, null, 4), 'utf-8');
                                     console.log('done writing')
                                 } catch (err) {
                                     console.error(err)
