@@ -15,12 +15,10 @@ module.exports = {
                     if(channel.parentID == parentID) {
                         console.log(channel.name);
                         channel.delete()
-                            .then(console.log)
                             .catch(console.error);
                     }
                 })
                 category.delete()
-                    .then(console.log)
                     .catch(console.error);
             }
         })
