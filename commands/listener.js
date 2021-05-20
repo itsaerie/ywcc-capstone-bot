@@ -19,13 +19,13 @@ module.exports = {
             let jsondata = require('.' + filepath);
 
             // attempt some stuff
-            if (jsondata["commit-students"] !== null && jsondata["commit-sponsors"] !== null && jsondata["exec-role"] !== null) {
-                if (message.channel == jsondata["commit-students"] && message.mentions.roles.find(role => role.id === jsondata["exec-role"]) != undefined) { // check if channel sent in is team commitments
+            if (jsondata['commit-students'] !== null && jsondata['commit-sponsors'] !== null && jsondata['exec-role'] !== null) {
+                if (message.channel == jsondata['commit-students'] && message.mentions.roles.find(role => role.id === jsondata['exec-role']) != undefined) { // check if channel sent in is team commitments
                     roles = message.mentions.roles.filter(role => role.id != execRole);
                     // this should be the role which represents the project which a student is interested in.
                     let mentionedRole = roles.first()
                     // send message
-                    let replyChannel = message.guild.channels.cache.find(channel => channel.id === jsondata["commit-sponsors"])
+                    let replyChannel = message.guild.channels.cache.find(channel => channel.id === jsondata['commit-sponsors'])
                     replyChannel.send(`${message.author.toString()} is trying to apply for ${mentionedRole}. Hit ✅ to approve, or hit ❌ to deny.`)
                         .then(reMessage => {
                             const filter = (reaction, user) => {
@@ -38,6 +38,7 @@ module.exports = {
                                     const reaction = collected.first();
 
                                     if (reaction.emoji.name === '✅') {
+                                        // Here is where we could potentially add this person's role if we really wanted
                                         message.reply(`You have been confirmed by ${mentionedRole}!`)
                                     } else {
                                         message.reply(`You have been rejected by ${mentionedRole}.`)
