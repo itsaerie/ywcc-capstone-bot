@@ -27,7 +27,7 @@ client.on('message', message => {
         args = args.join(' ').split(',');
 
         try {
-            client.commands.get(command).execute(client, message, args);
+            client.commands.get(command).execute(message, args);
         } catch (error) {
             console.error(error);
             message.reply('there was an error trying to execute that command');
@@ -36,7 +36,7 @@ client.on('message', message => {
 
     // try to listen
     try {
-        client.commands.get('listener').execute(message, args);
+        client.commands.get('listener').execute(client, message, args);
     } catch (error) { }
 });
 
